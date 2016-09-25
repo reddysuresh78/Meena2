@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Meena2</string>
+    <string name="date_of_birth">Date of Birth</string>
+    <string name="name">Name</string>
+    <string name="native_time_of_birth">Native\'s Time of Birth</string>
+    <string name="native_s_place_of_birth">Native\'s Place of Birth</string>
+    <string name="time_of_birth">Time of Birth</string>
+    <string name="native_birth_date">Native\'s Date of Birth</string>
+    <string name="native_s_name">Native\'s Name</string>
+    <string name="place_of_birth">Place of Birth</string>
+    <string name="generate">Generate</string>
+    <string name="reset">Clear</string>
+    <string name="error_name_blank">Please enter name</string>
+    <string name="error_place_blank">Please enter place</string>
+    <string name="error_place_invalid">Please enter valid place from list of allowed places</string>
+
+    <!-- AdMob ad unit IDs -->
+    <string name="banner_home_footer">ca-app-pub-5155702371839950/7187747824</string>
+    <string name="interstitial_full_screen">ca-app-pub-5155702371839950/8664481026</string>
+
+</resources>

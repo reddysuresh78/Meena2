@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Meena2.iml" filepath="$PROJECT_DIR$/Meena2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/horoscopegenerator/horoscopegenerator.iml" filepath="$PROJECT_DIR$/horoscopegenerator/horoscopegenerator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/swiss/swiss.iml" filepath="$PROJECT_DIR$/swiss/swiss.iml" />
+    </modules>
+  </component>
+</project>

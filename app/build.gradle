@@ -1,0 +1,45 @@
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "24.0.1"
+    defaultConfig {
+        applicationId "astrologytraining.com.meena2"
+        minSdkVersion 15
+        targetSdkVersion 24
+        versionCode 6
+        versionName "1.5"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/BCKEY.SF'
+        exclude 'META-INF/BCKEY.DSA'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile project(':horoscopegenerator')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    compile 'com.google.android.gms:play-services-ads:9.2.0'
+    compile 'com.android.support:appcompat-v7:24.1.1'
+    compile 'com.android.support:gridlayout-v7:24.1.1'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha4'
+    testCompile 'junit:junit:4.12'
+}

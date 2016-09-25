@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+
+    <android.support.v7.widget.GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/activity_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:columnCount="2"
+        app:rowCount="5"
+        tools:context="astrologytraining.com.meena2.MainActivity">
+
+        <TextView
+            android:id="@+id/name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:text="@string/name"
+            app:layout_columnWeight="1"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            app:layout_gravity="right|center_vertical" />
+
+        <EditText
+            android:id="@+id/txtNativeName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:layout_marginTop="@dimen/topMargin"
+            android:hint="@string/native_s_name"
+            android:inputType="textPersonName"
+            android:text=""
+            app:layout_columnWeight="1"
+
+            app:layout_gravity="left" />
+
+
+        <TextView
+            android:id="@+id/dateOfBirth_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/date_of_birth"
+            app:layout_columnWeight="1"
+            app:layout_gravity="right|center_vertical"
+
+            />
+
+        <EditText
+            android:id="@+id/txtDateOfBirth"
+            android:layout_width="124dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:layout_marginTop="@dimen/topMargin"
+            android:ems="10"
+
+            android:hint="@string/native_birth_date"
+            android:inputType="date"
+            android:text="13-03-1985"
+            app:layout_columnWeight="1"
+            app:layout_gravity="left" />
+
+        <TextView
+            android:id="@+id/timeOfBirth_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/time_of_birth"
+            app:layout_columnWeight="1"
+            app:layout_gravity="right|center_vertical"
+
+            />
+
+        <EditText
+            android:id="@+id/txtTimeOfBirth"
+            android:layout_width="126dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:layout_marginTop="@dimen/topMargin"
+            android:ems="10"
+            android:hint="@string/native_time_of_birth"
+            android:inputType="time"
+            android:text="04:22:00"
+            app:layout_columnWeight="1"
+            app:layout_gravity="left"
+
+            />
+
+        <TextView
+            android:id="@+id/placeOfBirth_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/place_of_birth"
+            app:layout_columnWeight="1"
+            app:layout_gravity="right|center_vertical" />
+
+        <AutoCompleteTextView
+            android:id="@+id/txtPlaceOfBirth"
+            android:layout_width="147dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:layout_marginTop="@dimen/topMargin"
+            android:hint="@string/native_s_place_of_birth"
+            android:text=""
+            app:layout_columnWeight="1"
+            app:layout_gravity="left"
+            android:dropDownWidth="match_parent"
+            />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+
+            app:layout_columnSpan="2"
+
+            app:layout_gravity="center_horizontal">
+
+            <Button
+                android:id="@+id/btnGenerate"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/generate" />
+
+            <Button
+                android:id="@+id/btnClear"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:text="@string/reset" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+
+            app:layout_columnSpan="2"
+
+            app:layout_gravity="center_horizontal">
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/adView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            ads:adSize="BANNER"
+            ads:adUnitId="@string/banner_home_footer">
+        </com.google.android.gms.ads.AdView>
+</LinearLayout>
+
+    </android.support.v7.widget.GridLayout>
+
+</ScrollView>
