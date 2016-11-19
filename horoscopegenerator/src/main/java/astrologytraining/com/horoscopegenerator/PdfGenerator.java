@@ -380,8 +380,19 @@ public class PdfGenerator extends PdfPageEventHelper {
 
             this.document.add(predictionTable);
 
-  			
-			this.document.close();
+
+            String jands = getJandS(birthChart);
+
+            PdfPTable jandsTable = new PdfPTable(1);
+
+            jandsTable.addCell(new Phrase(jands, new Font(this.baseFont, HoraStrings.EXTRA_MEDIUM_FONT_SIZE + 1, 0, BaseColor.BLACK)));
+
+            //TODO: This will print how j and s are determined.
+//            this.document.add(jandsTable);
+
+
+
+            this.document.close();
 			this.writer.close();
 			
 			//fileStream should be used to send the file out to client.
@@ -395,8 +406,89 @@ public class PdfGenerator extends PdfPageEventHelper {
 		
 		return byteStream.toByteArray();
  	}
- 
-	private PdfPTable getHeader(BirthChart birthChart) throws DocumentException{
+
+    private String getJandS(BirthChart birthChart) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Determining Jeeva and Sareera for planets:");
+
+        for (Planet planet : Planet.values()) {
+
+            PlanetInfo currentPlanet = null;
+            for (PlanetInfo planetInfo : birthChart.getRaasiChakra().getPlanetInfo()) {
+                if (planetInfo.getPlanet() == planet) {
+                    currentPlanet = planetInfo;
+                    break;
+                }
+            }
+
+            if(currentPlanet.getJeevaExplanation() != null) {
+                sb.append("\n\n").append(planet.toString()).append(": ");
+                sb.append(currentPlanet.getJeevaExplanation()).append(currentPlanet.getSareeraExplanation()).append("\n");
+
+            }
+        }
+
+
+        sb.append("\n\n\nDetermining Jeeva and Sareera for houses:");
+
+        int i=0;
+        Set<Integer> finishedHouses = new HashSet<Integer>(12);
+        for(House house: birthChart.getRaasiChakra().getOrderedHouses()){
+
+            int houseNo = house.getAssignedHouseNo();
+            String otherHouseName = null;
+
+            if (!finishedHouses.contains(houseNo)) {
+
+                int otherHouse = getOtherHouse(birthChart.getRaasiChakra().getOrderedHouses(),  house.getRaasi()  );
+
+                if(otherHouse != -1) {
+                    for(House tempHouse: birthChart.getRaasiChakra().getOrderedHouses()){
+
+                        if(tempHouse.getAssignedHouseNo() == otherHouse) {
+
+
+
+                        }
+                    }
+
+                }
+
+                String houseNumStr = houseNo + (otherHouse == -1 ? "" : "," + otherHouse);
+
+                sb.append("\n\nHouse ").append(houseNumStr).append(": ");
+                sb.append("House lord is ").append(house.getRaasi().getRaasiLord().toString()).append(". ");
+
+                Planet planet = house.getRaasi().getRaasiLord();
+
+                PlanetInfo currentPlanet = null;
+                for (PlanetInfo planetInfo : birthChart.getRaasiChakra().getPlanetInfo()) {
+                    if (planetInfo.getPlanet() == planet) {
+                        currentPlanet = planetInfo;
+                        break;
+                    }
+                }
+
+                if(currentPlanet.getJeevaExplanation() != null) {
+
+                    sb.append(currentPlanet.getJeevaExplanation()).append(currentPlanet.getSareeraExplanation()).append("\n");
+
+                }
+
+                finishedHouses.add(houseNo);
+                finishedHouses.add(otherHouse);
+            }
+
+        }
+
+        sb.append("\n\n\n");
+
+        return sb.toString();
+    }
+
+    private PdfPTable getHeader(BirthChart birthChart) throws DocumentException{
 	     	
 		   	 PdfPTable table = new PdfPTable(6);
 		   	 
@@ -595,24 +687,39 @@ public class PdfGenerator extends PdfPageEventHelper {
         return false;
     }
 
-	private Planet[] getJeevaSareeraPlanets(BirthChart birthChart, Planet forPlanet) {
-		
+	private Planet[] getJeevaSareeraPlanets(BirthChart birthChart, Planet forPlanet, PlanetInfo currentPlanet) {
+
+        StringBuilder sb = new StringBuilder();
+
+
 		Planet[] jsPlanets = {null, null};
 		Planet starLord = getStarLord(birthChart, forPlanet);
-	 	jsPlanets[0] = getJeevaOrSareeraPlanet(birthChart, starLord);
+//        sb.append("\n\n").append(forPlanet.toString()).append(": ");
+        sb.append("The planet ").append(forPlanet.toString()).append("'s starlord is ").append(starLord.toString()).append(". ");
+
+        jsPlanets[0] = getJeevaOrSareeraPlanet(birthChart, starLord, sb);
 	 	Planet jeevaPlanet = jsPlanets[0];
-	 	
-	 	starLord = getStarLord(birthChart, jeevaPlanet);
+	 	sb.append("So, Jeeva planet is ").append( jeevaPlanet).append(". ");
+
+        if(forPlanet != Planet.LAGNA) {
+            currentPlanet.setJeevaExplanation(sb.toString());
+        }
+        sb = new StringBuilder();
+
+        starLord = getStarLord(birthChart, jeevaPlanet);
+        sb.append("\nThe Jeeva planet ").append(jeevaPlanet.toString()).append("'s starlord is ").append(starLord.toString()).append(". ");
+
 	 	//If Jeeva planet is in its own star, consider Raasi lord to determine Sareera Planet 
   	    for(PlanetInfo planetInfo : birthChart.getRaasiChakra().getPlanetInfo()) {
  	    	if(planetInfo.getPlanet() == jeevaPlanet) {
  	    		if( planetInfo.getPlanetStar().getStarLord() == jeevaPlanet){
   	    			starLord = planetInfo.getHouse().getRaasi().getRaasiLord();
+                    sb.append("Due to Jeeva planet is in its own star, we need to consider Raasi lord ").append(starLord.toString());
  	    			break;
  	    		}
  	    	}
  	    }
-   		jsPlanets[1] = getJeevaOrSareeraPlanet(birthChart, starLord);
+   		jsPlanets[1] = getJeevaOrSareeraPlanet(birthChart, starLord, sb);
    		
    		Planet houseLord = null;
    		
@@ -622,16 +729,24 @@ public class PdfGenerator extends PdfPageEventHelper {
    	 	    	if(planetInfo.getPlanet() == jeevaPlanet) {
    	 	    		starLord = planetInfo.getHouse().getRaasi().getRaasiLord();
    	 	    		houseLord =starLord;
-   	 	    		break;
+                    sb.append("Due to Jeeva planet and Sareera planets are same, we need to consider Raasi lord ").append(starLord.toString()).append(" as star lord to determine Sareera planet").append(". ");
+
+                    break;
     	 	    }
    	 	    }
-   	  	    jsPlanets[1] = getJeevaOrSareeraPlanet(birthChart, starLord);
+   	  	    jsPlanets[1] = getJeevaOrSareeraPlanet(birthChart, starLord, sb);
    		}
-   		
+
    		if(jsPlanets[0] == jsPlanets[1] && jsPlanets[0] == Planet.SATURN && houseLord == Planet.MARS) {
-   			//If jeeva and sareera is Saturn, then we should consider raasi lord as sareera. This can only happen for Saturn in Anuradha.
+            sb.append("Due to Jeeva planet and Sareera planets are same, and Jeeva planet is Saturn and house lord is Mars, we should consider Sareera as Mars. " );
+
+            //If jeeva and sareera is Saturn, then we should consider raasi lord as sareera. This can only happen for Saturn in Anuradha.
    			jsPlanets[1] = Planet.MARS;
    		}
+        sb.append("So, Sareera planet is ").append( jsPlanets[1]).append(". ");;
+        if(forPlanet != Planet.LAGNA) {
+            currentPlanet.setSareeraExplanation(sb.toString());
+        }
  	 	return jsPlanets;
 		
 	}
@@ -657,7 +772,7 @@ public class PdfGenerator extends PdfPageEventHelper {
     }
 
 
-    private Planet getJeevaOrSareeraPlanet(BirthChart birthChart, Planet starLord) {
+    private Planet getJeevaOrSareeraPlanet(BirthChart birthChart, Planet starLord, StringBuilder sb) {
 
 //		System.out.println("Trying to find out js for planet " + forPlanet.getShortName());
 
@@ -677,15 +792,24 @@ public class PdfGenerator extends PdfPageEventHelper {
         }
 
         if (planetCount == 1) {
+            sb.append("Also the planet has not conjoined with any other planet. ");
             jOrSPlanet = starLord;
         } else {
             //When there are multiple planets, find strongest among them
+            //Only for string
+            sb.append("The planet is conjoined with ");
+            for (PlanetInfo planetInfo : currentPlanet.getHouse().getPlanets()) {
+                sb.append(planetInfo.getPlanet().toString()).append(",");
+            }
+            sb.deleteCharAt(sb.length()-1).append(". ");
+            //Only for string
 
             //Check if saturn is one of the stars along with SL
             if (currentPlanet.getHouse().getRaasi() == Raasi.VRUSCHIKA) {
                 for (PlanetInfo planetInfo : currentPlanet.getHouse().getPlanets()) {
                     if (planetInfo.getPlanet() == Planet.SATURN && planetInfo.getPlanetStar() == Star.ANURADHA) {
                         jOrSPlanet = Planet.SATURN;
+                        sb.append("The planet is in Vruchika and Saturn is in Anuradha Star. ");
                         break;
                     }
                 }
@@ -697,6 +821,8 @@ public class PdfGenerator extends PdfPageEventHelper {
                 for (PlanetInfo planetInfo : currentPlanet.getHouse().getPlanets()) {
                     if (planetInfo.getPlanet() == currentPlanet.getHouse().getRaasi().getRaasiLord()) {
                         jOrSPlanet = planetInfo.getPlanet();
+                        sb.append("The planet ").append(jOrSPlanet.toString()).append(" is in own house " )
+                                .append(currentPlanet.getHouse().getRaasi().toString()).append(". ");
                         break;
                     }
                 }
@@ -707,9 +833,11 @@ public class PdfGenerator extends PdfPageEventHelper {
                     for (PlanetInfo planetInfo : currentPlanet.getHouse().getPlanets()) {
                         if (planetInfo.getPlanet() == Planet.RAHU && currentPlanet.getHouse().getRaasi() == Raasi.KUMBHAM) {
                             jOrSPlanet = Planet.RAHU;
+                            sb.append("The planet Rahu is in Kumbha. ");
                             break;
                         } else if (planetInfo.getPlanet() == Planet.KETU && currentPlanet.getHouse().getRaasi() == Raasi.MESHAM) {
                             jOrSPlanet = Planet.KETU;
+                            sb.append("The planet Ketu is in Mesha. ");
                             break;
                         }
                     }
@@ -721,6 +849,8 @@ public class PdfGenerator extends PdfPageEventHelper {
                 for (PlanetInfo planetInfo : currentPlanet.getHouse().getPlanets()) {
                     if (planetInfo.getPlanet().getExaltation() == currentPlanet.getHouse().getRaasi()) {
                         jOrSPlanet = planetInfo.getPlanet();
+                        sb.append("The planet ").append(jOrSPlanet.toString()).append(" is exalted in ")
+                                .append(currentPlanet.getHouse().getRaasi().toString()).append(". ");
                         break;
                     }
                 }
@@ -734,15 +864,19 @@ public class PdfGenerator extends PdfPageEventHelper {
                 for (PlanetInfo planetInfo : currentPlanet.getHouse().getPlanets()) {
                     if (planetInfo.isHasDikbala()) {
                         digbalaPlanets.add(planetInfo);
+                        sb.append(planetInfo.getPlanet().toString()).append(",");
                     }
                 }
 
                 if (digbalaPlanets.size() == 1) {
+                    sb.deleteCharAt(sb.length()-1).append(" has digbala. ");
                     jOrSPlanet = digbalaPlanets.get(0).getPlanet();
                 } else if (digbalaPlanets.size() > 1) {
+                    sb.deleteCharAt(sb.length()-1).append(" have digbala. ");
                     //More than one planet has digbala.
-                    jOrSPlanet = getStrongPlanet(digbalaPlanets);
+                    jOrSPlanet = getStrongPlanet(digbalaPlanets, sb);
                 } else {
+                    sb.append("No other rules have satisfied. ");
                     jOrSPlanet = starLord;
                     System.out.println("Using natural planet for " + starLord);
                 }
@@ -757,17 +891,22 @@ public class PdfGenerator extends PdfPageEventHelper {
 
     }
 
-    private Planet getStrongPlanet(List<PlanetInfo> planets) {
+    private Planet getStrongPlanet(List<PlanetInfo> planets, StringBuilder sb) {
         Planet strongPlanet = null;
         List<PlanetInfo> ownStarPlanets = new ArrayList<PlanetInfo>();
+
+        boolean mercuryDeb = false;
         for (PlanetInfo planetInfo : planets) {
+
             if (planetInfo.getPlanetStar().getStarLord() == planetInfo.getPlanet()) {
+                sb.append(planetInfo.getPlanet().toString()).append(",");
                 //A planet is in debilitation and in its own star is only possible for Mercury.
                 //If only mercury is in own star, he would anyway win in the above if Condition
                 //Otherwise, we can safely exclude debilitation planet from competing planets.
                 //Again this is only possible for mercury.
 
                 if (planetInfo.getPlanet().getDelibitation() == planetInfo.getHouse().getRaasi()) {
+                    mercuryDeb = true;
                     //If planet is debilitated, do not consider it for own star. This can only happen for mercury.
                     continue;
                 }
@@ -776,10 +915,22 @@ public class PdfGenerator extends PdfPageEventHelper {
         }
 
         if (ownStarPlanets.size() == 1) {
+            if(mercuryDeb) {
+                sb.append(" are in own star. However, Mercury is debilitated. So, Mercury can be ignored. ");
+            }else{
+                sb.append(" is in own star. ");
+            }
+
             return ownStarPlanets.get(0).getPlanet();
         } else {
+            if(ownStarPlanets.size() >0){
+                sb.append(" are in own star. So, considering order of strengh to determine the strong planet. ");
+            }else{
+                sb.append("None of the digbala planets are in own star. So, considering order of strengh to determine the strong planet. ");
+            }
+
             int strength = -1;
-            //More than one planet is in own star or none of the db planets in own star. Choose strongest planet based on order of strength
+            //More than one db planet is in own star or none of the db planets in own star. Choose strongest planet based on order of strength
             for (PlanetInfo planetInfo : planets) {
 
                 switch (planetInfo.getPlanet()) {
@@ -900,6 +1051,10 @@ public class PdfGenerator extends PdfPageEventHelper {
 
                 }
             }
+        }
+
+        if(strongPlanet != null) {
+            sb.append("So, the strongest planet based on order of strength is ").append(strongPlanet.toString()).append(". ");
         }
         return strongPlanet;
     }
@@ -1130,7 +1285,7 @@ public class PdfGenerator extends PdfPageEventHelper {
 	    
 //	    System.out.println("Planet " + currentPlanet.getPlanet() +  " KalamsaLord: " + kalamsaLord + " longitude: " + currentPlanet.longitude + " star: " + star.name() );
   	    
-	    Planet[] jsPlanets = getJeevaSareeraPlanets(birthChart, kalamsaLord);
+	    Planet[] jsPlanets = getJeevaSareeraPlanets(birthChart, kalamsaLord, currentPlanet);
   	     
 //	    System.out.println("JS Planets: " + Arrays.toString( jsPlanets) );
 
@@ -1808,7 +1963,7 @@ public class PdfGenerator extends PdfPageEventHelper {
             table.addCell(planetNameCell);
 
 
-            Planet[] jsPlanets = getJeevaSareeraPlanets(birthChart, planet);
+            Planet[] jsPlanets = getJeevaSareeraPlanets(birthChart, planet, currentPlanet);
 
             String threeFoldGuna = getThreeFoldGuna(birthChart, planet);
 
@@ -1853,7 +2008,7 @@ public class PdfGenerator extends PdfPageEventHelper {
                     break;
                 }
             }
-            Planet[] jsPlanets = getJeevaSareeraPlanets(birthChart, planet);
+            Planet[] jsPlanets = getJeevaSareeraPlanets(birthChart, planet, currentPlanet);
             String threeFoldGuna = getThreeFoldGuna(birthChart, planet);
             currentPlanet.setGunas(threeFoldGuna);
             currentPlanet.setJeeva(jsPlanets[0]);
@@ -2200,7 +2355,7 @@ public class PdfGenerator extends PdfPageEventHelper {
             threefoldGunaCell.addElement(new Phrase(threefoldGunas, new Font(this.baseFont, HoraStrings.SMALL_FONT_SIZE, 0, BaseColor.BLACK)));
             table.addCell(threefoldGunaCell);
 
-            Planet[] jsPlanets = getJeevaSareeraPlanets(birthChart, house.getRaasi().getRaasiLord());
+            Planet[] jsPlanets = getJeevaSareeraPlanets(birthChart, house.getRaasi().getRaasiLord(), currentPlanet);
 
             String jeevaPlanet = jsPlanets[0].getShortName();
             PdfPCell jeevaPlanetCell = new PdfPCell();

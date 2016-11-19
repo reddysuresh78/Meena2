@@ -29,10 +29,26 @@ public class PlanetInfo {
 	private Planet sareera;
 	
 	private Planet kalamsaLord;
-	
-	
-	
-	
+
+	private String jeevaExplanation;
+	private String sareeraExplanation;
+
+	public String getJeevaExplanation() {
+		return jeevaExplanation;
+	}
+
+	public void setJeevaExplanation(String jeevaExplanation) {
+		this.jeevaExplanation = jeevaExplanation;
+	}
+
+	public String getSareeraExplanation() {
+		return sareeraExplanation;
+	}
+
+	public void setSareeraExplanation(String sareeraExplanation) {
+		this.sareeraExplanation = sareeraExplanation;
+	}
+
 	public Planet getKalamsaLord() {
 		return kalamsaLord;
 	}
